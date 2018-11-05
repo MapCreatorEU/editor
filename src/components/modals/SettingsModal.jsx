@@ -82,6 +82,14 @@ class SettingsModal extends React.Component {
         />
       </InputBlock>
 
+      <InputBlock label={"Maps4News Access Token"} doc={"Public access token for Maps4News services."}>
+        <StringInput {...inputProps}
+          data-wd-key="modal-settings.maputnik:maps4news_access_token"
+          value={metadata['maputnik:maps4news_access_token']}
+          onChange={this.changeMetadataProperty.bind(this, "maputnik:maps4news_access_token")}
+        />
+      </InputBlock>
+
       <InputBlock label={"MapTiler Access Token"} doc={"Public access token for MapTiler Cloud."}>
         <StringInput {...inputProps}
           data-wd-key="modal-settings.maputnik:openmaptiles_access_token" 

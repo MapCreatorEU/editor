@@ -120,12 +120,22 @@ export default class MapboxGlMap extends React.Component {
 
   componentDidMount() {
     if(!IS_SUPPORTED) return;
-
+  
     const mapOpts = {
       ...this.props.options,
       container: this.container,
       style: this.props.mapStyle,
       hash: true,
+      transformRequest: (url) => {
+        const metadata = this.props.mapStyle.metadata || {};
+        const token = metadata['maputnik:maps4news_access_token'];
+
+        if (token != undefined) {
+          return {
+            url: url + '?access_token=' + metadata['maputnik:maps4news_access_token']
+          }
+        }
+      },
     }
 
     const map = new MapboxGl.Map(mapOpts);

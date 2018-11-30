@@ -18,7 +18,6 @@ import ExportModal from './modals/ExportModal'
 import SourcesModal from './modals/SourcesModal'
 import OpenModal from './modals/OpenModal'
 import ShortcutsModal from './modals/ShortcutsModal'
-import SurveyModal from './modals/SurveyModal'
 
 import { downloadGlyphsMetadata, downloadSpriteMetadata } from '../libs/metadata'
 import * as styleSpec from '@mapbox/mapbox-gl-style-spec/style-spec'
@@ -59,7 +58,7 @@ export default class App extends React.Component {
       onLocalStyleChange: mapStyle => this.onStyleChanged(mapStyle, false)
     })
 
-    
+
     const keyCodes = {
       "esc": 27,
       "?": 191,
@@ -535,10 +534,6 @@ export default class App extends React.Component {
         onStyleChanged={this.onStyleChanged.bind(this)}
         isOpen={this.state.isOpen.sources}
         onOpenToggle={this.toggleModal.bind(this, 'sources')}
-      />
-      <SurveyModal
-        isOpen={this.state.isOpen.survey}
-        onOpenToggle={this.toggleModal.bind(this, 'survey')}
       />
     </div>
 

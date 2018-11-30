@@ -16,7 +16,6 @@ import MdInsertEmoticon from 'react-icons/lib/md/insert-emoticon'
 import MdFontDownload from 'react-icons/lib/md/font-download'
 import HelpIcon from 'react-icons/lib/md/help-outline'
 import InspectionIcon from 'react-icons/lib/md/find-in-page'
-import SurveyIcon from 'react-icons/lib/md/assignment-turned-in'
 
 import logoImage from 'maputnik-design/logos/logo-color.svg'
 import pkgJson from '../../package.json'
@@ -169,10 +168,6 @@ export default class Toolbar extends React.Component {
             <HelpIcon />
             <IconText>Help</IconText>
           </ToolbarLink>
-          <ToolbarLinkHighlighted href={"https://gregorywolanski.typeform.com/to/cPgaSY"}>
-            <SurveyIcon />
-            <IconText>Take the Maputnik Survey</IconText>
-          </ToolbarLinkHighlighted>
         </div>
       </div>
     </div>

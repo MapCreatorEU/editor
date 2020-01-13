@@ -1,7 +1,6 @@
 var assert = require("assert");
 var config = require("../../config/specs");
 var helper = require("../helper");
-var wd     = require("../../wd-helper");
 
 
 describe.skip("history", function() {
@@ -14,6 +13,7 @@ describe.skip("history", function() {
     browser.url(config.baseUrl+"?debug&style="+helper.getStyleUrl([
       "geojson:example"
     ]));
+    browser.alertAccept();
 
     helper.modal.addLayer.open();
 

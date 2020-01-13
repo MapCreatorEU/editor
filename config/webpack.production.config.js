@@ -1,43 +1,22 @@
 var webpack = require('webpack');
 var path = require('path');
-var loaders = require('./webpack.loaders');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var rules = require('./webpack.rules');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var WebpackCleanupPlugin = require('webpack-cleanup-plugin');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var artifacts = require("../test/artifacts");
-var UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 var OUTPATH = artifacts.pathSync("/build");
 
 module.exports = {
   entry: {
     app: './src/index.jsx',
-    vendor: [
-        'file-saver',
-        'mapbox-gl/dist/mapbox-gl.js',
-        "lodash.clonedeep",
-        "lodash.throttle",
-        'color',
-        'react',
-        "react-dom",
-        "react-color",
-        "react-file-reader-input",
-        "react-collapse",
-        "react-height",
-        "react-icon-base",
-        "react-motion",
-        "react-sortable-hoc",
-        "request",
-        //TODO: Icons raise multi vendor errors?
-        //"react-icons",
-    ]
   },
   output: {
     path: OUTPATH,
-    filename: '[name].[chunkhash].js',
-    chunkFilename: '[chunkhash].js'
+    filename: '[name].[contenthash].js',
+    chunkFilename: '[contenthash].js'
   },
   resolve: {
     extensions: ['.js', '.jsx']
@@ -46,7 +25,7 @@ module.exports = {
     noParse: [
       /mapbox-gl\/dist\/mapbox-gl.js/
     ],
-    loaders
+    rules: rules
   },
   node: {
     fs: "empty",
@@ -55,16 +34,11 @@ module.exports = {
   },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor', filename: '[chunkhash].vendor.js' }),
     new WebpackCleanupPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"'
       }
-    }),
-    new UglifyJsPlugin(),
-    new ExtractTextPlugin('[contenthash].css', {
-      allChunks: true
     }),
     new HtmlWebpackPlugin({
       template: './src/template.html',
@@ -74,8 +48,8 @@ module.exports = {
       {
         from: './src/manifest.json',
         to: 'manifest.json'
-      }
-    ]),
+    }
+  ]),
     new BundleAnalyzerPlugin({
       analyzerMode: 'static',
       defaultSizes: 'gzip',

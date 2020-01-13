@@ -1,15 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
+import lodash from 'lodash';
 
-import Button from '../Button'
 import LayerListGroup from './LayerListGroup'
 import LayerListItem from './LayerListItem'
-import AddIcon from 'react-icons/lib/md/add-circle-outline'
 import AddModal from '../modals/AddModal'
 
-import style from '../../libs/style.js'
-import {SortableContainer, SortableHandle} from 'react-sortable-hoc';
+import {SortableContainer} from 'react-sortable-hoc';
 
 const layerListPropTypes = {
   layers: PropTypes.array.isRequired,
@@ -38,21 +36,17 @@ function findClosestCommonPrefix(layers, idx) {
 }
 
 // List of collapsible layer editors
-@SortableContainer
 class LayerListContainer extends React.Component {
   static propTypes = {...layerListPropTypes}
   static defaultProps = {
     onLayerSelect: () => {},
   }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      collapsedGroups: {},
-      areAllGroupsExpanded: false,
-      isOpen: {
-        add: false,
-      }
+  state = {
+    collapsedGroups: {},
+    areAllGroupsExpanded: false,
+    isOpen: {
+      add: false,
     }
   }
 
@@ -65,7 +59,7 @@ class LayerListContainer extends React.Component {
     })
   }
 
-  toggleLayers() {
+  toggleLayers = () => {
     let idx=0
 
     let newGroups=[]
@@ -73,12 +67,12 @@ class LayerListContainer extends React.Component {
     this.groupedLayers().forEach(layers => {
       const groupPrefix = layerPrefix(layers[0].id)
       const lookupKey = [groupPrefix, idx].join('-')
-      
+
 
       if (layers.length > 1) {
         newGroups[lookupKey] = this.state.areAllGroupsExpanded
       }
-      
+
       layers.forEach((layer) => {
         idx += 1
       })
@@ -121,6 +115,50 @@ class LayerListContainer extends React.Component {
   isCollapsed(groupPrefix, idx) {
     const collapsed = this.state.collapsedGroups[[groupPrefix, idx].join('-')]
     return collapsed === undefined ? true : collapsed
+  }
+
+  shouldComponentUpdate (nextProps, nextState) {
+    // Always update on state change
+    if (this.state !== nextState) {
+      return true;
+    }
+
+    // This component tree only requires id and visibility from the layers
+    // objects
+    function getRequiredProps (layer) {
+      const out = {
+        id: layer.id,
+      };
+
+      if (layer.layout) {
+        out.layout = {
+          visibility: layer.layout.visibility
+        };
+      }
+      return out;
+    }
+    const layersEqual = lodash.isEqual(
+      nextProps.layers.map(getRequiredProps),
+      this.props.layers.map(getRequiredProps),
+    );
+
+    function withoutLayers (props) {
+      const out = {
+        ...props
+      };
+      delete out['layers'];
+      return out;
+    }
+
+    // Compare the props without layers because we've already compared them
+    // efficiently above.
+    const propsEqual = lodash.isEqual(
+      withoutLayers(this.props),
+      withoutLayers(nextProps)
+    );
+
+    const propsChanged = !(layersEqual && propsEqual);
+    return propsChanged;
   }
 
   render() {
@@ -179,7 +217,7 @@ class LayerListContainer extends React.Component {
           <div className="maputnik-multibutton">
             <button
               id="skip-menu"
-              onClick={this.toggleLayers.bind(this)}
+              onClick={this.toggleLayers}
               className="maputnik-button">
               {this.state.areAllGroupsExpanded === true ? "Collapse" : "Expand"}
             </button>
@@ -203,12 +241,15 @@ class LayerListContainer extends React.Component {
   }
 }
 
+const LayerListContainerSortable = SortableContainer((props) => <LayerListContainer {...props} />)
+
 export default class LayerList extends React.Component {
   static propTypes = {...layerListPropTypes}
 
   render() {
-    return <LayerListContainer
+    return <LayerListContainerSortable
       {...this.props}
+      helperClass='sortableHelper'
       onSortEnd={this.props.onMoveLayer.bind(this)}
       useDragHandle={true}
     />

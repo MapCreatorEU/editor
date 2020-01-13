@@ -1,4 +1,3 @@
-import React from 'react';
 import deref from '@mapbox/mapbox-gl-style-spec/deref'
 import tokens from '../config/tokens.json'
 
@@ -102,10 +101,13 @@ function replaceAccessTokens(mapStyle, opts={}) {
     changedStyle = replaceSourceAccessToken(changedStyle, sourceName, opts);
   })
 
-  if (mapStyle.glyphs && mapStyle.glyphs.match(/\.tilehosting\.com/)) {
-    changedStyle = {
-      ...changedStyle,
-      glyphs: mapStyle.glyphs.replace('{key}', getAccessToken("openmaptiles", mapStyle, opts))
+  if (mapStyle.glyphs && (mapStyle.glyphs.match(/\.tilehosting\.com/) || mapStyle.glyphs.match(/\.maptiler\.com/))) {
+    const newAccessToken = getAccessToken("openmaptiles", mapStyle, opts);
+    if (newAccessToken) {
+      changedStyle = {
+        ...changedStyle,
+        glyphs: mapStyle.glyphs.replace('{key}', newAccessToken)
+      }
     }
   }
 
@@ -117,5 +119,6 @@ export default {
   emptyStyle,
   indexOfLayer,
   generateId,
+  getAccessToken,
   replaceAccessTokens,
 }

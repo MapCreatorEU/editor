@@ -1,55 +1,57 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Color from 'color'
 import classnames from 'classnames'
 
-import CopyIcon from 'react-icons/lib/md/content-copy'
-import VisibilityIcon from 'react-icons/lib/md/visibility'
-import VisibilityOffIcon from 'react-icons/lib/md/visibility-off'
-import DeleteIcon from 'react-icons/lib/md/delete'
+import {MdContentCopy, MdVisibility, MdVisibilityOff, MdDelete} from 'react-icons/md'
 
 import LayerIcon from '../icons/LayerIcon'
-import LayerEditor from './LayerEditor'
 import {SortableElement, SortableHandle} from 'react-sortable-hoc'
 
-@SortableHandle
-class LayerTypeDragHandle extends React.Component {
-  static propTypes = LayerIcon.propTypes
 
-  render() {
-    return <LayerIcon
-      {...this.props}
-      style={{
-        cursor: 'move',
-        width: 14,
-        height: 14,
-        paddingRight: 3,
-      }}
+const DraggableLabel = SortableHandle((props) => {
+  return <div className="maputnik-layer-list-item-handle">
+    <LayerIcon
+      className="layer-handle__icon"
+      type={props.layerType}
     />
-  }
-}
+    <span className="maputnik-layer-list-item-id">{props.layerId}</span>
+  </div>
+});
 
 class IconAction extends React.Component {
   static propTypes = {
     action: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired,
-    wdKey: PropTypes.string
+    wdKey: PropTypes.string,
+    classBlockName: PropTypes.string,
+    classBlockModifier: PropTypes.string,
   }
 
   renderIcon() {
     switch(this.props.action) {
-      case 'duplicate': return <CopyIcon />
-      case 'show': return <VisibilityIcon />
-      case 'hide': return <VisibilityOffIcon />
-      case 'delete': return <DeleteIcon />
+      case 'duplicate': return <MdContentCopy />
+      case 'show': return <MdVisibility />
+      case 'hide': return <MdVisibilityOff />
+      case 'delete': return <MdDelete />
     }
   }
 
   render() {
+    const {classBlockName, classBlockModifier} = this.props;
+
+    let classAdditions = '';
+    if (classBlockName) {
+      classAdditions = `maputnik-layer-list-icon-action__${classBlockName}`;
+
+      if (classBlockModifier) {
+        classAdditions += ` maputnik-layer-list-icon-action__${classBlockName}--${classBlockModifier}`;
+      }
+    }
+
     return <button
       tabIndex="-1"
       title={this.props.action}
-      className="maputnik-layer-list-icon-action"
+      className={`maputnik-layer-list-icon-action ${classAdditions}`}
       data-wd-key={this.props.wdKey}
       onClick={this.props.onClick}
     >
@@ -58,7 +60,6 @@ class IconAction extends React.Component {
   }
 }
 
-@SortableElement
 class LayerListItem extends React.Component {
   static propTypes = {
     layerId: PropTypes.string.isRequired,
@@ -92,6 +93,8 @@ class LayerListItem extends React.Component {
   }
 
   render() {
+    const visibilityAction = this.props.visibility === 'visible' ? 'show' : 'hide';
+
     return <li
       key={this.props.layerId}
       onClick={e => this.props.onLayerSelect(this.props.layerId)}
@@ -101,26 +104,31 @@ class LayerListItem extends React.Component {
         "maputnik-layer-list-item-selected": this.props.isSelected,
         [this.props.className]: true,
       })}>
-        <LayerTypeDragHandle type={this.props.layerType} />
-        <span className="maputnik-layer-list-item-id">{this.props.layerId}</span>
+        <DraggableLabel {...this.props} />
         <span style={{flexGrow: 1}} />
         <IconAction
           wdKey={"layer-list-item:"+this.props.layerId+":delete"}
           action={'delete'}
+          classBlockName="delete"
           onClick={e => this.props.onLayerDestroy(this.props.layerId)}
         />
         <IconAction
           wdKey={"layer-list-item:"+this.props.layerId+":copy"}
           action={'duplicate'}
+          classBlockName="duplicate"
           onClick={e => this.props.onLayerCopy(this.props.layerId)}
         />
         <IconAction
           wdKey={"layer-list-item:"+this.props.layerId+":toggle-visibility"}
-          action={this.props.visibility === 'visible' ? 'hide' : 'show'}
+          action={visibilityAction}
+          classBlockName="visibility"
+          classBlockModifier={visibilityAction}
           onClick={e => this.props.onLayerVisibilityToggle(this.props.layerId)}
         />
     </li>
   }
 }
 
-export default LayerListItem;
+const LayerListItemSortable = SortableElement((props) => <LayerListItem {...props} />);
+
+export default LayerListItemSortable;

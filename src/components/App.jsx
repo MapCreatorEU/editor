@@ -313,10 +313,10 @@ export default class App extends React.Component {
     if(errors.length === 0) {
 
       if(newStyle.glyphs !== this.state.mapStyle.glyphs) {
-        this.updateFonts(newStyle.glyphs)
+        this.updateFonts(newStyle.glyphs.replace('vapi.maps4news', 'vapi.bleeding.maps4news'))
       }
       if(newStyle.sprite !== this.state.mapStyle.sprite) {
-        this.updateIcons(newStyle.sprite)
+        this.updateIcons(newStyle.sprite.replace('vapi.maps4news', 'vapi.bleeding.maps4news'))
       }
 
       this.revisionStore.addRevision(newStyle)

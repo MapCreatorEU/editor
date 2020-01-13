@@ -124,6 +124,14 @@ export default class MapboxGlMap extends React.Component {
       container: this.container,
       style: this.props.mapStyle,
       hash: true,
+      transformRequest: url => {
+        url = url.replace('maps4news.com', 'mapcreator.io');
+        // Disable access token for raster tiles from here or maptiler
+        if (/vapi\..*mapcreator\.io/.test(url)) {
+            url = url.replace('vapi.mapcreator', 'vapi.bleeding.mapcreator');
+        }
+        return { url };
+      },
     }
 
     const map = new MapboxGl.Map(mapOpts);

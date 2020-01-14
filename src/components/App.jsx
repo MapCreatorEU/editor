@@ -310,13 +310,18 @@ export default class App extends React.Component {
   onStyleChanged = (newStyle, save=true) => {
 
     const errors = validate(newStyle, latest)
+    
     if(errors.length === 0) {
 
       if(newStyle.glyphs !== this.state.mapStyle.glyphs) {
-        this.updateFonts(newStyle.glyphs.replace('vapi.maps4news', 'vapi.bleeding.maps4news'))
+        let domain = newStyle.glyphs.replace('vapi.maps4news', 'vapi.bleeding.maps4news')
+        domain = domain.replace('vapi.mapcreator', 'vapi.bleeding.mapcreator')
+        this.updateFonts(domain)
       }
       if(newStyle.sprite !== this.state.mapStyle.sprite) {
-        this.updateIcons(newStyle.sprite.replace('vapi.maps4news', 'vapi.bleeding.maps4news'))
+        let domain = newStyle.sprite.replace('vapi.maps4news', 'vapi.bleeding.maps4news')
+        domain = domain.replace('vapi.mapcreator', 'vapi.bleeding.mapcreator')
+        this.updateIcons(domain)
       }
 
       this.revisionStore.addRevision(newStyle)

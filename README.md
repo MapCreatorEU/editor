@@ -1,25 +1,26 @@
 # Maputnik
 
-[![Build Status](https://travis-ci.org/maputnik/editor.svg?branch=master)][travis]
+[![Build Status](https://circleci.com/gh/maputnik/editor/tree/master.svg?style=shield)][circleci]
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/anelbgv6jdb3qnh9/branch/master?svg=true)][appveyor]
 [![Dependency Status](https://david-dm.org/maputnik/editor.svg)][dm-prod]
 [![Dev Dependency Status](https://david-dm.org/maputnik/editor/dev-status.svg)][dm-dev]
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)][license]
 
-[travis]:      https://travis-ci.org/maputnik/editor
+[circleci]:    https://circleci.com/gh/maputnik/editor/tree/master
 [appveyor]:    https://ci.appveyor.com/project/lukasmartinelli/editor
 [dm-prod]:     https://david-dm.org/maputnik/editor
-[dm-dev]:      https://david-dm.org/maputnik/editor#info=devDependencies
+[dm-dev]:      https://david-dm.org/maputnik/editor?type=dev
 [license]:     https://tldrlegal.com/license/mit-license
 
-<img width="200" align="right" alt="Maputnik" src="src/img/maputnik.png" />
+<img width="200" align="right" alt="Maputnik" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/src/img/maputnik.png" />
 
 A free and open visual editor for the [Mapbox GL styles](https://www.mapbox.com/mapbox-gl-style-spec/)
 targeted at developers and map designers.
 
 - :link: Design your maps online at **<https://maputnik.github.io/editor/>** (all in local storage)
+- :link: Use the [Maputnik CLI](https://github.com/maputnik/editor/wiki/Maputnik-CLI) for local style development
 
-Mapbox has built one of the best and most amazing OSS ecosystems. A key component to ensure its longevity and independance is an OSS map designer.
+Mapbox has built one of the best and most amazing OSS ecosystems. A key component to ensure its longevity and independence is an OSS map designer.
 
 
 ## Donations
@@ -50,12 +51,18 @@ npm install
 npm start
 ```
 
-The build process will watch for changes to the filesystem, rebuild and autoreload the editor. However note this from the webpack-dev-server docs
+If you want Maputnik to be accessible externally use the [`--host` option](https://webpack.js.org/configuration/dev-server/#devserverhost):
 
-> webpack uses the file system to get notified of file changes. In some cases this does not work. For example, when using Network File System (NFS). Vagrant also has a lot of problems with this. 
-Snippet from <https://webpack.js.org/configuration/dev-server/#devserver-watchoptions->
+```bash
+# start externally accessible dev server
+npm start -- --host 0.0.0.0 
+```
 
-To enable polling add `export WEBPACK_DEV_SERVER_POLLING=1` to your enviroment.
+The build process will watch for changes to the filesystem, rebuild and autoreload the editor. However note this from the [webpack-dev-server docs](https://webpack.js.org/configuration/dev-server/):
+
+> webpack uses the file system to get notified of file changes. In some cases this does not work. For example, when using Network File System (NFS). Vagrant also has a lot of problems with this. ([snippet source](https://webpack.js.org/configuration/dev-server/#devserverwatchoptions-))
+
+To enable polling add `export WEBPACK_DEV_SERVER_POLLING=1` to your environment.
 
 ```
 npm run build
@@ -111,13 +118,13 @@ Thanks to the supporters of the **[Kickstarter campaign](https://www.kickstarter
 - [Terranodo](http://terranodo.io/)
 
 <a href="https://getwemap.com/">
-  <img width="33%" alt="Wemap" style="display:inline" src="media/sponsors/wemap.jpg" />
+  <img width="33%" alt="Wemap" style="display:inline" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/wemap.jpg" />
 </a>
 <a href="http://terranodo.io/">
-  <img width="33%" alt="Terranodo" style="display:inline" src="media/sponsors/terranodo.png" />
+  <img width="33%" alt="Terranodo" style="display:inline" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/terranodo.png" />
 </a>
 <a href="https://www.orbiconinformatik.dk/">
-  <img width="32%" alt="Terranodo" style="display:inline" src="media/sponsors/orbicon_informatik.png" />
+  <img width="32%" alt="Terranodo" style="display:inline" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/orbicon_informatik.png" />
 </a>
 
 <br/>
@@ -129,13 +136,13 @@ Thanks to the supporters of the **[Kickstarter campaign](https://www.kickstarter
 - [Dreipol](https://www.dreipol.ch/)
 
 <a href="https://www.klokantech.com/">
-  <img width="18%" alt="Klokan Technologies" style="display:inline-block" src="media/sponsors/klokantech.png" />
+  <img width="18%" alt="Klokan Technologies" style="display:inline-block" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/klokantech.png" />
 </a>
 <a href="http://www.geofabrik.de/">
-  <img width="18%" alt="Geofabrik" style="display:inline-block" src="media/sponsors/geofabrik.png" />
+  <img width="18%" alt="Geofabrik" style="display:inline-block" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/geofabrik.png" />
 </a>
 <a href="https://www.dreipol.ch/">
-  <img width="18%" alt="Dreipol" style="display:inline-block" src="media/sponsors/dreipol.png" />
+  <img width="18%" alt="Dreipol" style="display:inline-block" src="https://cdn.jsdelivr.net/gh/maputnik/editor@1.5.0/media/sponsors/dreipol.png" />
 </a>
 
 <br/>

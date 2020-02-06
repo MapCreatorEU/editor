@@ -108,6 +108,16 @@
   background-color: $color-midgray;
 }
 
+.maputnik-add-modal {
+  width: 400px;
+  max-width: 100%;
+}
+
+.maputnik-export-modal {
+  width: 400px;
+  max-width: 100%;
+}
+
 .maputnik-add-layer {
   @extend .clearfix;
 }
@@ -180,10 +190,26 @@
   border-width: 2px;
   border-style: solid;
   padding: $margin-2;
+
+  .maputnik-input-block-label {
+    width: 30%;
+  }
+
+  .maputnik-input-block-content {
+    width: 70%;
+  }
 }
 
 .maputnik-add-source {
   @extend .clearfix;
+
+  .maputnik-input-block-label {
+    width: 30%;
+  }
+
+  .maputnik-input-block-content {
+    width: 70%;
+  }
 }
 
 .maputnik-add-source-button {
@@ -263,4 +289,8 @@
 .maputnik-modal-survey__footnote {
   color: $color-green;
   margin-top: 16px;
+}
+
+.modal-settings {
+  width: 400px;
 }

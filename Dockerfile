@@ -1,4 +1,9 @@
-FROM node:10
+FROM node:10-slim
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    python \
+ && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8888
 
@@ -9,7 +14,7 @@ COPY . ${HOME}/
 
 WORKDIR ${HOME}
 
-RUN npm install -d --dev
+RUN npm install -d
 RUN npm run build
 
 WORKDIR ${HOME}/build/build

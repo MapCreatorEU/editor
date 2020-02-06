@@ -17,10 +17,9 @@ import '../../libs/mapbox-rtl'
 
 const IS_SUPPORTED = MapboxGl.supported();
 
-function renderPropertyPopup(features) {
-  var mountNode = document.createElement('div');
-  ReactDOM.render(<FeaturePropertyPopup features={features} />, mountNode)
-  return mountNode.innerHTML;
+function renderPopup(popup, mountNode) {
+  ReactDOM.render(popup, mountNode);
+  return mountNode;
 }
 
 function buildInspectStyle(originalMapStyle, coloredLayers, highlightedLayer) {
@@ -61,12 +60,15 @@ export default class MapboxGlMap extends React.Component {
     inspectModeEnabled: PropTypes.bool.isRequired,
     highlightedLayer: PropTypes.object,
     options: PropTypes.object,
+    replaceAccessTokens: PropTypes.func.isRequired,
+    onChange: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     onMapLoaded: () => {},
     onDataChange: () => {},
     onLayerSelect: () => {},
+    onChange: () => {},
     mapboxAccessToken: tokens.mapbox,
     options: {},
   }
@@ -77,9 +79,6 @@ export default class MapboxGlMap extends React.Component {
     this.state = {
       map: null,
       inspect: null,
-      isPopupOpen: false,
-      popupX: 0,
-      popupY: 0,
     }
   }
 
@@ -90,11 +89,12 @@ export default class MapboxGlMap extends React.Component {
     const metadata = props.mapStyle.metadata || {}
     MapboxGl.accessToken = metadata['maputnik:mapbox_access_token'] || tokens.mapbox
 
-    if(!props.inspectModeEnabled) {
-      //Mapbox GL now does diffing natively so we don't need to calculate
-      //the necessary operations ourselves!
-      this.state.map.setStyle(props.mapStyle, { diff: true})
-    }
+    //Mapbox GL now does diffing natively so we don't need to calculate
+    //the necessary operations ourselves!
+    this.state.map.setStyle(
+      this.props.replaceAccessTokens(props.mapStyle),
+      {diff: true}
+    )
   }
 
   componentDidUpdate(prevProps) {
@@ -105,6 +105,9 @@ export default class MapboxGlMap extends React.Component {
     this.updateMapFromProps(this.props);
 
     if(this.props.inspectModeEnabled !== prevProps.inspectModeEnabled) {
+      // HACK: Fix for <https://github.com/maputnik/editor/issues/576>, while we wait for a proper fix.
+      // eslint-disable-next-line
+      this.state.inspect._popupBlocked = false;
       this.state.inspect.toggleInspector()
     }
     if(this.props.inspectModeEnabled) {
@@ -126,19 +129,37 @@ export default class MapboxGlMap extends React.Component {
       container: this.container,
       style: this.props.mapStyle,
       hash: true,
+      maxZoom: 24,
+      transformRequest: url => {
+        url = url.replace('maps4news.com', 'mapcreator.io');
+        // Disable access token for raster tiles from here or maptiler
+        if (/vapi\..*mapcreator\.io/.test(url)) {
+            url = url.replace('vapi.mapcreator', 'vapi.bleeding.mapcreator');
+        }
+        return { url };
+      },
     }
 
     const map = new MapboxGl.Map(mapOpts);
+
+    const mapViewChange = () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      this.props.onChange({center, zoom});
+    }
+    mapViewChange();
 
     map.showTileBoundaries = mapOpts.showTileBoundaries;
     map.showCollisionBoxes = mapOpts.showCollisionBoxes;
     map.showOverdrawInspector = mapOpts.showOverdrawInspector;
 
-    const zoom = new ZoomControl;
-    map.addControl(zoom, 'top-right');
+    const zoomControl = new ZoomControl;
+    map.addControl(zoomControl, 'top-right');
 
-    const nav = new MapboxGl.NavigationControl();
+    const nav = new MapboxGl.NavigationControl({visualizePitch:true});
     map.addControl(nav, 'top-right');
+
+    const tmpNode = document.createElement('div');
 
     const inspect = new MapboxInspect({
       popup: new MapboxGl.Popup({
@@ -155,18 +176,23 @@ export default class MapboxGlMap extends React.Component {
       buildInspectStyle: (originalMapStyle, coloredLayers) => buildInspectStyle(originalMapStyle, coloredLayers, this.props.highlightedLayer),
       renderPopup: features => {
         if(this.props.inspectModeEnabled) {
-          return renderPropertyPopup(features)
+          return renderPopup(<FeaturePropertyPopup features={features} />, tmpNode);
         } else {
-          var mountNode = document.createElement('div');
-          ReactDOM.render(<FeatureLayerPopup features={features} onLayerSelect={this.props.onLayerSelect} />, mountNode)
-          return mountNode
+          return renderPopup(<FeatureLayerPopup features={features} onLayerSelect={this.props.onLayerSelect} zoom={this.state.zoom} />, tmpNode);
         }
       }
     })
     map.addControl(inspect)
 
     map.on("style.load", () => {
-      this.setState({ map, inspect });
+      this.setState({
+        map,
+        inspect,
+        zoom: map.getZoom()
+      });
+      if(this.props.inspectModeEnabled) {
+        inspect.toggleInspector();
+      }
     })
 
     map.on("data", e => {
@@ -175,6 +201,19 @@ export default class MapboxGlMap extends React.Component {
         map: this.state.map
       })
     })
+
+    map.on("error", e => {
+      console.log("ERROR", e);
+    })
+
+    map.on("zoom", e => {
+      this.setState({
+        zoom: map.getZoom()
+      });
+    });
+
+    map.on("dragend", mapViewChange);
+    map.on("zoomend", mapViewChange);
   }
 
   render() {

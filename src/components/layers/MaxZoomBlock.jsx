@@ -12,10 +12,11 @@ class MaxZoomBlock extends React.Component {
   }
 
   render() {
-    return <InputBlock label={"Max Zoom"} doc={latest.layer.maxzoom.doc}
+    return <InputBlock label={"Max Zoom"} fieldSpec={latest.layer.maxzoom}
       data-wd-key="max-zoom"
     >
       <NumberInput
+        allowRange={true}
         value={this.props.value}
         onChange={this.props.onChange}
         min={latest.layer.maxzoom.minimum}

@@ -27,6 +27,16 @@
   }
 }
 
+.maputnik-number-container {
+  display: flex;
+}
+
+.maputnik-number-range {
+  width: calc(100% - 4.5em);
+  margin-right: 0.5em;
+  flex-shrink: 0;
+}
+
 .maputnik-number {
   @extend .maputnik-input;
 }
@@ -177,4 +187,36 @@
   .maputnik-autocomplete:not(:last-child) {
     margin-bottom: $margin-3;
   }
+}
+
+.maputnik-input-block-content {
+  position: relative;
+  overflow: hidden;
+}
+
+.SpecDoc__sdk-support {
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.SpecDoc__sdk-support__table {
+  width: 100%;
+  margin-top: $margin-3;
+
+  td, th {
+    border: solid 1px $color-midgray;
+    padding: 4px 6px;
+    white-space: nowrap;
+  }
+}
+
+.SpecDoc__values li {
+  margin-top: $margin-3;
+}
+
+.SpecDoc__values code {
+  background: $color-midgray;
+  padding: 0.1em 0.3em;
+  border-radius: 2px;
 }

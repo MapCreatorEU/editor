@@ -6,6 +6,8 @@ import StringInput from '../inputs/StringInput'
 import UrlInput from '../inputs/UrlInput'
 import NumberInput from '../inputs/NumberInput'
 import SelectInput from '../inputs/SelectInput'
+import DynamicArrayInput from '../inputs/DynamicArrayInput'
+import ArrayInput from '../inputs/ArrayInput'
 import JSONEditor from '../layers/JSONEditor'
 
 
@@ -18,7 +20,7 @@ class TileJSONSourceEditor extends React.Component {
 
   render() {
     return <div>
-      <InputBlock label={"TileJSON URL"} doc={latest.source_vector.url.doc}>
+      <InputBlock label={"TileJSON URL"} fieldSpec={latest.source_vector.url}>
         <UrlInput
           value={this.props.source.url}
           onChange={url => this.props.onChange({
@@ -52,7 +54,7 @@ class TileURLSourceEditor extends React.Component {
     const prefix = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th']
     const tiles = this.props.source.tiles || []
     return tiles.map((tileUrl, tileIndex) => {
-      return <InputBlock key={tileIndex} label={prefix[tileIndex] + " Tile URL"} doc={latest.source_vector.tiles.doc}>
+      return <InputBlock key={tileIndex} label={prefix[tileIndex] + " Tile URL"} fieldSpec={latest.source_vector.tiles}>
         <UrlInput
           value={tileUrl}
           onChange={this.changeTileUrl.bind(this, tileIndex)}
@@ -64,7 +66,7 @@ class TileURLSourceEditor extends React.Component {
   render() {
     return <div>
       {this.renderTileUrls()}
-      <InputBlock label={"Min Zoom"} doc={latest.source_vector.minzoom.doc}>
+      <InputBlock label={"Min Zoom"} fieldSpec={latest.source_vector.minzoom}>
         <NumberInput
           value={this.props.source.minzoom || 0}
           onChange={minzoom => this.props.onChange({
@@ -73,7 +75,7 @@ class TileURLSourceEditor extends React.Component {
           })}
         />
       </InputBlock>
-      <InputBlock label={"Max Zoom"} doc={latest.source_vector.maxzoom.doc}>
+      <InputBlock label={"Max Zoom"} fieldSpec={latest.source_vector.maxzoom}>
         <NumberInput
           value={this.props.source.maxzoom || 22}
           onChange={maxzoom => this.props.onChange({
@@ -88,6 +90,100 @@ class TileURLSourceEditor extends React.Component {
   }
 }
 
+class ImageSourceEditor extends React.Component {
+  static propTypes = {
+    source: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
+  }
+
+  render() {
+    const changeCoord = (idx, val) => {
+      const coordinates = this.props.source.coordinates.slice(0);
+      coordinates[idx] = val;
+
+      this.props.onChange({
+        ...this.props.source,
+        coordinates,
+      });
+    }
+
+    return <div>
+      <InputBlock label={"Image URL"} doc={latest.source_image.url.doc}>
+        <UrlInput
+          value={this.props.source.url}
+          onChange={url => this.props.onChange({
+            ...this.props.source,
+            url,
+          })}
+        />
+      </InputBlock>
+      {["top left", "top right", "bottom right", "bottom left"].map((label, idx) => {
+        return (
+          <InputBlock label={`Coord ${label}`} key={label}>
+            <ArrayInput
+              length={2}
+              type="number"
+              value={this.props.source.coordinates[idx]}
+              default={[0, 0]}
+              onChange={(val) => changeCoord(idx, val)}
+            />
+          </InputBlock>
+        );
+      })}
+    </div>
+  }
+}
+
+class VideoSourceEditor extends React.Component {
+  static propTypes = {
+    source: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
+  }
+
+  render() {
+    const changeCoord = (idx, val) => {
+      const coordinates = this.props.source.coordinates.slice(0);
+      coordinates[idx] = val;
+
+      this.props.onChange({
+        ...this.props.source,
+        coordinates,
+      });
+    }
+
+    const changeUrls = (urls) => {
+      this.props.onChange({
+        ...this.props.source,
+        urls,
+      });
+    }
+
+    return <div>
+      <InputBlock label={"Video URL"} doc={latest.source_video.urls.doc}>
+        <DynamicArrayInput
+          type="string"
+          value={this.props.source.urls}
+          default={""}
+          onChange={changeUrls}
+        />
+      </InputBlock>
+      {["top left", "top right", "bottom right", "bottom left"].map((label, idx) => {
+        return (
+          <InputBlock label={`Coord ${label}`} key={label}>
+            <ArrayInput
+              length={2}
+              type="number"
+              value={this.props.source.coordinates[idx]}
+              default={[0, 0]}
+              onChange={val => changeCoord(idx, val)}
+            />
+          </InputBlock>
+        );
+      })}
+    </div>
+  }
+}
+
 class GeoJSONSourceUrlEditor extends React.Component {
   static propTypes = {
     source: PropTypes.object.isRequired,
@@ -95,7 +191,7 @@ class GeoJSONSourceUrlEditor extends React.Component {
   }
 
   render() {
-    return <InputBlock label={"GeoJSON URL"} doc={latest.source_geojson.data.doc}>
+    return <InputBlock label={"GeoJSON URL"} fieldSpec={latest.source_geojson.data}>
       <UrlInput
         value={this.props.source.data}
         onChange={data => this.props.onChange({
@@ -114,7 +210,7 @@ class GeoJSONSourceJSONEditor extends React.Component {
   }
 
   render() {
-    return <InputBlock label={"GeoJSON"} doc={latest.source_geojson.data.doc}>
+    return <InputBlock label={"GeoJSON"} fieldSpec={latest.source_geojson.data}>
       <JSONEditor
         layer={this.props.source.data}
         maxHeight={200}
@@ -150,7 +246,7 @@ class SourceTypeEditor extends React.Component {
       case 'tilexyz_raster': return <TileURLSourceEditor {...commonProps} />
       case 'tilejson_raster-dem': return <TileJSONSourceEditor {...commonProps} />
       case 'tilexyz_raster-dem': return <TileURLSourceEditor {...commonProps}>
-        <InputBlock label={"Encoding"} doc={latest.source_raster_dem.encoding.doc}>
+        <InputBlock label={"Encoding"} fieldSpec={latest.source_raster_dem.encoding}>
           <SelectInput
             options={Object.keys(latest.source_raster_dem.encoding.values)}
             onChange={encoding => this.props.onChange({
@@ -161,6 +257,8 @@ class SourceTypeEditor extends React.Component {
           />
         </InputBlock>
       </TileURLSourceEditor>
+      case 'image': return <ImageSourceEditor {...commonProps} />
+      case 'video': return <VideoSourceEditor {...commonProps} />
       default: return null
     }
   }

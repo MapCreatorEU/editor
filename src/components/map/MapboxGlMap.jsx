@@ -129,7 +129,7 @@ export default class MapboxGlMap extends React.Component {
       container: this.container,
       style: this.props.mapStyle,
       hash: true,
-      maxZoom: 24
+      maxZoom: 24,
       transformRequest: url => {
         url = url.replace('maps4news.com', 'mapcreator.io');
         // Disable access token for raster tiles from here or maptiler

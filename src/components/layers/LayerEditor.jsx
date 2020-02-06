@@ -14,10 +14,7 @@ import CommentBlock from './CommentBlock'
 import LayerSourceBlock from './LayerSourceBlock'
 import LayerSourceLayerBlock from './LayerSourceLayerBlock'
 
-import MoreVertIcon from 'react-icons/lib/md/more-vert'
-
-import InputBlock from '../inputs/InputBlock'
-import MultiButtonInput from '../inputs/MultiButtonInput'
+import {MdMoreVert} from 'react-icons/md'
 
 import { changeType, changeProperty } from '../../libs/layer'
 import layout from '../../config/layout.json'
@@ -36,7 +33,7 @@ function layoutGroups(layerType) {
     title: 'JSON Editor',
     type: 'jsoneditor'
   }
-    return [layerGroup, filterGroup].concat(layout[layerType].groups).concat([editorGroup])
+  return [layerGroup, filterGroup].concat(layout[layerType].groups).concat([editorGroup])
 }
 
 /** Layer editor supporting multiple types of layers. */
@@ -79,18 +76,18 @@ export default class LayerEditor extends React.Component {
     this.state = { editorGroups }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const additionalGroups = { ...this.state.editorGroups }
+  static getDerivedStateFromProps(props, state) {
+    const additionalGroups = { ...state.editorGroups }
 
-    layout[nextProps.layer.type].groups.forEach(group => {
+    layout[props.layer.type].groups.forEach(group => {
       if(!(group.title in additionalGroups)) {
         additionalGroups[group.title] = true
       }
     })
 
-    this.setState({
+    return {
       editorGroups: additionalGroups
-    })
+    };
   }
 
   getChildContext () {
@@ -144,7 +141,7 @@ export default class LayerEditor extends React.Component {
           onChange={v => this.changeProperty(null, 'source', v)}
         />
         }
-        {['background', 'raster', 'hillshade', 'heatmap'].indexOf(this.state.type) < 0 &&
+        {['background', 'raster', 'hillshade', 'heatmap'].indexOf(this.props.layer.type) < 0 &&
         <LayerSourceLayerBlock
           sourceLayerIds={sourceLayerIds}
           value={this.props.layer['source-layer']}
@@ -257,7 +254,7 @@ export default class LayerEditor extends React.Component {
               closeOnSelection={false}
             >
               <Button className='more-menu__button'>
-                <MoreVertIcon className="more-menu__button__svg" />
+                <MdMoreVert className="more-menu__button__svg" />
               </Button>
               <Menu>
                 <ul className="more-menu__menu">

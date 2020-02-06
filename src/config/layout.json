@@ -71,7 +71,8 @@
             "fill-extrusion-translate-anchor",
             "fill-extrusion-pattern",
             "fill-extrusion-height",
-            "fill-extrusion-base"
+            "fill-extrusion-base",
+            "fill-extrusion-vertical-gradient"
           ]
         }
       ]
@@ -105,7 +106,8 @@
           "fields": [
             "symbol-placement",
             "symbol-spacing",
-            "symbol-avoid-edges"
+            "symbol-avoid-edges",
+            "symbol-z-order"
           ]
         },
         {
@@ -126,17 +128,21 @@
             "text-justify",
             "text-anchor",
             "text-max-angle",
+            "text-writing-mode",
             "text-rotate",
             "text-keep-upright",
             "text-transform",
             "text-offset",
-            "text-optional"
+            "text-optional",
+            "text-variable-anchor",
+            "text-radial-offset"
           ]
         },
         {
           "title": "Icon layout properties",
           "type": "properties",
           "fields": [
+            "icon-image",
             "icon-allow-overlap",
             "icon-ignore-placement",
             "icon-optional",
@@ -144,7 +150,6 @@
             "icon-size",
             "icon-text-fit",
             "icon-text-fit-padding",
-            "icon-image",
             "icon-rotate",
             "icon-padding",
             "icon-keep-upright",

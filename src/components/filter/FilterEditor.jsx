@@ -2,15 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { combiningFilterOps } from '../../libs/filterops.js'
 
-import * as styleSpec from '@mapbox/mapbox-gl-style-spec/style-spec'
+import {latest} from '@mapbox/mapbox-gl-style-spec'
 import DocLabel from '../fields/DocLabel'
 import SelectInput from '../inputs/SelectInput'
 import SingleFilterEditor from './SingleFilterEditor'
 import FilterEditorBlock from './FilterEditorBlock'
 import Button from '../Button'
-
-import DeleteIcon from 'react-icons/lib/md/delete'
-import AddIcon from 'react-icons/lib/fa/plus'
+import SpecDoc from '../inputs/SpecDoc'
 
 function hasCombiningFilter(filter) {
   return combiningFilterOps.indexOf(filter[0]) >= 0
@@ -30,6 +28,13 @@ export default class CombiningFilterEditor extends React.Component {
     properties: PropTypes.object,
     filter: PropTypes.array,
     onChange: PropTypes.func.isRequired,
+  }
+
+  constructor () {
+    super();
+    this.state = {
+      showDoc: false,
+    };
   }
 
   // Convert filter to combining filter
@@ -60,16 +65,26 @@ export default class CombiningFilterEditor extends React.Component {
     this.props.onChange(newFilter)
   }
 
-  addFilterItem() {
+  addFilterItem = () => {
     const newFilterItem = this.combiningFilter().slice(0)
     newFilterItem.push(['==', 'name', ''])
     this.props.onChange(newFilterItem)
+  }
+
+  onToggleDoc = (val) => {
+    this.setState({
+      showDoc: val
+    });
   }
 
   render() {
     const filter = this.combiningFilter()
     let combiningOp = filter[0]
     let filters = filter.slice(1)
+
+    const fieldSpec={
+      doc: latest.layer.filter.doc + " Combine multiple filters together by using a compound filter."
+    };
 
     const editorBlocks = filters.map((f, idx) => {
       return <FilterEditorBlock key={idx} onDelete={this.deleteFilterItem.bind(this, idx)}>
@@ -92,7 +107,8 @@ export default class CombiningFilterEditor extends React.Component {
       <div className="maputnik-filter-editor-compound-select" data-wd-key="layer-filter">
         <DocLabel
           label={"Compound Filter"}
-          doc={styleSpec.latest.layer.filter.doc + " Combine multiple filters together by using a compound filter."}
+          onToggleDoc={this.onToggleDoc}
+          fieldSpec={fieldSpec}
         />
         <SelectInput
           value={combiningOp}
@@ -105,9 +121,15 @@ export default class CombiningFilterEditor extends React.Component {
         <Button
           data-wd-key="layer-filter-button"
           className="maputnik-add-filter"
-          onClick={this.addFilterItem.bind(this)}>
+          onClick={this.addFilterItem}>
           Add filter
         </Button>
+      </div>
+      <div
+        className="maputnik-doc-inline"
+        style={{display: this.state.showDoc ? '' : 'none'}}
+      >
+        <SpecDoc fieldSpec={fieldSpec} />
       </div>
     </div>
   }

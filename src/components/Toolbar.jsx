@@ -1,26 +1,20 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import FileReaderInput from 'react-file-reader-input'
 import classnames from 'classnames'
+import {detect} from 'detect-browser';
 
-import MdFileDownload from 'react-icons/lib/md/file-download'
-import MdFileUpload from 'react-icons/lib/md/file-upload'
-import OpenIcon from 'react-icons/lib/md/open-in-browser'
-import SettingsIcon from 'react-icons/lib/md/settings'
-import MdInfo from 'react-icons/lib/md/info'
-import SourcesIcon from 'react-icons/lib/md/layers'
-import MdSave from 'react-icons/lib/md/save'
-import MdStyle from 'react-icons/lib/md/style'
-import MdMap from 'react-icons/lib/md/map'
-import MdInsertEmoticon from 'react-icons/lib/md/insert-emoticon'
-import MdFontDownload from 'react-icons/lib/md/font-download'
-import HelpIcon from 'react-icons/lib/md/help-outline'
-import InspectionIcon from 'react-icons/lib/md/find-in-page'
+import {MdFileDownload, MdOpenInBrowser, MdSettings, MdLayers, MdHelpOutline, MdFindInPage, MdAssignmentTurnedIn} from 'react-icons/md'
+
+
 
 import logoImage from 'maputnik-design/logos/logo-color.svg'
 import pkgJson from '../../package.json'
 
-import style from '../libs/style'
+
+// This is required because of <https://stackoverflow.com/a/49846426>, there isn't another way to detect support that I'm aware of.
+const browser = detect();
+const colorAccessibilityFiltersEnabled = ['chrome', 'firefox'].indexOf(browser.name) > -1;
+
 
 class IconText extends React.Component {
   static propTypes = {
@@ -74,6 +68,22 @@ class ToolbarLinkHighlighted extends React.Component {
   }
 }
 
+class ToolbarSelect extends React.Component {
+  static propTypes = {
+    children: PropTypes.node,
+    wdKey: PropTypes.string
+  }
+
+  render() {
+    return <div
+      className='maputnik-toolbar-select'
+      data-wd-key={this.props.wdKey}
+    >
+      {this.props.children}
+    </div>
+  }
+}
+
 class ToolbarAction extends React.Component {
   static propTypes = {
     children: PropTypes.node,
@@ -101,25 +111,64 @@ export default class Toolbar extends React.Component {
     onStyleOpen: PropTypes.func.isRequired,
     // A dict of source id's and the available source layers
     sources: PropTypes.object.isRequired,
-    onInspectModeToggle: PropTypes.func.isRequired,
     children: PropTypes.node,
     onToggleModal: PropTypes.func,
+    onSetMapState: PropTypes.func,
+    mapState: PropTypes.string,
+    renderer: PropTypes.string,
   }
 
-  constructor(props) {
-    super(props)
-    this.state = {
-      isOpen: {
-        settings: false,
-        sources: false,
-        open: false,
-        add: false,
-        export: false,
-      }
+  state = {
+    isOpen: {
+      settings: false,
+      sources: false,
+      open: false,
+      add: false,
+      export: false,
     }
   }
 
+  handleSelection(val) {
+    this.props.onSetMapState(val);
+  }
+
   render() {
+    const views = [
+      {
+        id: "map",
+        title: "Map",
+      },
+      {
+        id: "inspect",
+        title: "Inspect",
+        disabled: this.props.renderer !== 'mbgljs',
+      },
+      {
+        id: "filter-deuteranopia",
+        title: "Map (deuteranopia)",
+        disabled: !colorAccessibilityFiltersEnabled,
+      },
+      {
+        id: "filter-protanopia",
+        title: "Map (protanopia)",
+        disabled: !colorAccessibilityFiltersEnabled,
+      },
+      {
+        id: "filter-tritanopia",
+        title: "Map (tritanopia)",
+        disabled: !colorAccessibilityFiltersEnabled,
+      },
+      {
+        id: "filter-achromatopsia",
+        title: "Map (achromatopsia)",
+        disabled: !colorAccessibilityFiltersEnabled,
+      },
+    ];
+
+    const currentView = views.find((view) => {
+      return view.id === this.props.mapState;
+    });
+
     return <div className='maputnik-toolbar'>
       <div className="maputnik-toolbar__inner">
         <div
@@ -135,14 +184,15 @@ export default class Toolbar extends React.Component {
             className="maputnik-toolbar-logo"
           >
             <img src={logoImage} alt="Maputnik" />
-            <h1>Maputnik
+            <h1>
+              <span className="maputnik-toolbar-name">{pkgJson.name}</span>
               <span className="maputnik-toolbar-version">v{pkgJson.version}</span>
             </h1>
           </a>
         </div>
         <div className="maputnik-toolbar__actions">
           <ToolbarAction wdKey="nav:open" onClick={this.props.onToggleModal.bind(this, 'open')}>
-            <OpenIcon />
+            <MdOpenInBrowser />
             <IconText>Open</IconText>
           </ToolbarAction>
           <ToolbarAction wdKey="nav:export" onClick={this.props.onToggleModal.bind(this, 'export')}>
@@ -150,22 +200,30 @@ export default class Toolbar extends React.Component {
             <IconText>Export</IconText>
           </ToolbarAction>
           <ToolbarAction wdKey="nav:sources" onClick={this.props.onToggleModal.bind(this, 'sources')}>
-            <SourcesIcon />
+            <MdLayers />
             <IconText>Data Sources</IconText>
           </ToolbarAction>
           <ToolbarAction wdKey="nav:settings" onClick={this.props.onToggleModal.bind(this, 'settings')}>
-            <SettingsIcon />
+            <MdSettings />
             <IconText>Style Settings</IconText>
           </ToolbarAction>
-          <ToolbarAction wdKey="nav:inspect" onClick={this.props.onInspectModeToggle}>
-            <InspectionIcon />
-            <IconText>
-              { this.props.inspectModeEnabled && <span>Map Mode</span> }
-              { !this.props.inspectModeEnabled && <span>Inspect Mode</span> }
-            </IconText>
-          </ToolbarAction>
+
+          <ToolbarSelect wdKey="nav:inspect">
+            <MdFindInPage />
+            <IconText>View </IconText>
+            <select onChange={(e) => this.handleSelection(e.target.value)} value={currentView.id}>
+              {views.map((item) => {
+                return (
+                  <option key={item.id} value={item.id} disabled={item.disabled}>
+                    {item.title}
+                  </option>
+                );
+              })}
+            </select>
+          </ToolbarSelect>
+
           <ToolbarLink href={"https://github.com/maputnik/editor/wiki"}>
-            <HelpIcon />
+            <MdHelpOutline />
             <IconText>Help</IconText>
           </ToolbarLink>
         </div>

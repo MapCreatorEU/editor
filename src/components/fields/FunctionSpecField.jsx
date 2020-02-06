@@ -14,6 +14,25 @@ function isDataField(value) {
   return typeof value === 'object' && value.stops && typeof value.property !== 'undefined'
 }
 
+/**
+ * If we don't have a default value just make one up
+ */
+function findDefaultFromSpec (spec) {
+  if (spec.hasOwnProperty('default')) {
+    return spec.default;
+  }
+
+  const defaults = {
+    'color': '#000000',
+    'string': '',
+    'boolean': false,
+    'number': 0,
+    'array': [],
+  }
+
+  return defaults[spec.type] || '';
+}
+
 /** Supports displaying spec field for zoom function objects
  * https://www.mapbox.com/mapbox-gl-style-spec/#types-function-zoom-property
  */
@@ -32,7 +51,17 @@ export default class FunctionSpecProperty  extends React.Component {
     ]),
   }
 
-  addStop() {
+  getFieldFunctionType(fieldSpec) {
+    if (fieldSpec.expression.interpolated) {
+      return "exponential"
+    }
+    if (fieldSpec.type === "number") {
+      return "interval"
+    }
+    return "categorical"
+  }
+
+  addStop = () => {
     const stops = this.props.value.stops.slice(0)
     const lastStop = stops[stops.length - 1]
     if (typeof lastStop[0] === "object") {
@@ -53,7 +82,7 @@ export default class FunctionSpecProperty  extends React.Component {
     this.props.onChange(this.props.fieldName, changedValue)
   }
 
-  deleteStop(stopIdx) {
+  deleteStop = (stopIdx) => {
     const stops = this.props.value.stops.slice(0)
     stops.splice(stopIdx, 1)
 
@@ -69,23 +98,25 @@ export default class FunctionSpecProperty  extends React.Component {
     this.props.onChange(this.props.fieldName, changedValue)
   }
 
-  makeZoomFunction() {
+  makeZoomFunction = () => {
     const zoomFunc = {
       stops: [
-        [6, this.props.value],
-        [10, this.props.value]
+        [6, this.props.value || findDefaultFromSpec(this.props.fieldSpec)],
+        [10, this.props.value || findDefaultFromSpec(this.props.fieldSpec)]
       ]
     }
     this.props.onChange(this.props.fieldName, zoomFunc)
   }
 
-  makeDataFunction() {
+  makeDataFunction = () => {
+    const functionType = this.getFieldFunctionType(this.props.fieldSpec);
+    const stopValue = functionType === 'categorical' ? '' : 0;
     const dataFunc = {
       property: "",
-      type: "categorical",
+      type: functionType,
       stops: [
-        [{zoom: 6, value: 0}, this.props.value],
-        [{zoom: 10, value: 0}, this.props.value]
+        [{zoom: 6, value: stopValue}, this.props.value || findDefaultFromSpec(this.props.fieldSpec)],
+        [{zoom: 10, value: stopValue}, this.props.value || findDefaultFromSpec(this.props.fieldSpec)]
       ]
     }
     this.props.onChange(this.props.fieldName, dataFunc)
@@ -102,8 +133,8 @@ export default class FunctionSpecProperty  extends React.Component {
           fieldName={this.props.fieldName}
           fieldSpec={this.props.fieldSpec}
           value={this.props.value}
-          onDeleteStop={this.deleteStop.bind(this)}
-          onAddStop={this.addStop.bind(this)}
+          onDeleteStop={this.deleteStop}
+          onAddStop={this.addStop}
         />
       )
     }
@@ -114,8 +145,8 @@ export default class FunctionSpecProperty  extends React.Component {
           fieldName={this.props.fieldName}
           fieldSpec={this.props.fieldSpec}
           value={this.props.value}
-          onDeleteStop={this.deleteStop.bind(this)}
-          onAddStop={this.addStop.bind(this)}
+          onDeleteStop={this.deleteStop}
+          onAddStop={this.addStop}
         />
       )
     }
@@ -126,8 +157,8 @@ export default class FunctionSpecProperty  extends React.Component {
           fieldName={this.props.fieldName}
           fieldSpec={this.props.fieldSpec}
           value={this.props.value}
-          onZoomClick={this.makeZoomFunction.bind(this)}
-          onDataClick={this.makeDataFunction.bind(this)} 
+          onZoomClick={this.makeZoomFunction}
+          onDataClick={this.makeDataFunction} 
         />
       )
     }

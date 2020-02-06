@@ -2,8 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import Button from '../Button'
-import InputBlock from '../inputs/InputBlock'
-import StringInput from '../inputs/StringInput'
 import Modal from './Modal'
 
 import LayerTypeBlock from '../layers/LayerTypeBlock'
@@ -22,7 +20,7 @@ class AddModal extends React.Component {
     sources: PropTypes.object.isRequired,
   }
 
-  addLayer() {
+  addLayer = () => {
     const changedLayers = this.props.layers.slice(0)
     const layer = {
       id: this.state.id,
@@ -55,10 +53,10 @@ class AddModal extends React.Component {
     }
   }
 
-  UNSAFE_componentWillUpdate(nextProps, nextState) {
+  componentDidUpdate(prevProps, prevState) {
     // Check if source is valid for new type
-    const oldType = this.state.type;
-    const newType = nextState.type;
+    const oldType = prevState.type;
+    const newType = this.state.type;
 
     const availableSourcesOld = this.getSources(oldType);
     const availableSourcesNew = this.getSources(newType);
@@ -66,11 +64,11 @@ class AddModal extends React.Component {
     if(
       // Type has changed
       oldType !== newType
-      && this.state.source !== ""
+      && prevState.source !== ""
       // Was a valid source previously
-      && availableSourcesOld.indexOf(this.state.source) > -1
+      && availableSourcesOld.indexOf(prevState.source) > -1
       // And is not a valid source now
-      && availableSourcesNew.indexOf(nextState.source) < 0
+      && availableSourcesNew.indexOf(this.state.source) < 0
     ) {
       // Clear the source
       this.setState({
@@ -93,10 +91,19 @@ class AddModal extends React.Component {
         "line",
         "symbol",
         "circle",
-        "fill-extrusion"
+        "fill-extrusion",
+        "heatmap"
       ],
       raster: [
         "raster"
+      ],
+      geojson: [
+        "fill",
+        "line",
+        "symbol",
+        "circle",
+        "fill-extrusion",
+        "heatmap"
       ]
     }
 
@@ -119,6 +126,7 @@ class AddModal extends React.Component {
       onOpenToggle={this.props.onOpenToggle}
       title={'Add Layer'}
       data-wd-key="modal:add-layer"
+      className="maputnik-add-modal"
     >
       <div className="maputnik-add-layer">
       <LayerIdBlock
@@ -151,7 +159,7 @@ class AddModal extends React.Component {
       }
       <Button
         className="maputnik-add-layer-button"
-        onClick={this.addLayer.bind(this)}
+        onClick={this.addLayer}
         data-wd-key="add-layer"
       >
         Add Layer

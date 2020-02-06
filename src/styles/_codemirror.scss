@@ -1,6 +1,17 @@
+.CodeMirror-lint-tooltip {
+  z-index: 2000 !important;
+}
+
+.codemirror-container {
+  max-width: 100%;
+  position: relative;
+  overflow: auto;
+}
+
 .cm-s-maputnik.CodeMirror {
   height: 100%;
   font-size: 12px;
+  background: transparent;
 }
 
 .cm-s-maputnik.CodeMirror, .cm-s-maputnik .CodeMirror-gutters {
@@ -8,16 +19,12 @@
   border: none;
 }
 
-.cm-s-maputnik.CodeMirror {
-  background: transparent;
-}
-
 .cm-s-maputnik .CodeMirror-gutters {
   background: #212328;
 }
 
 .cm-s-maputnik .CodeMirror-cursor {
-    border-left: solid thin #8e8e8e !important;
+    border-left: solid thin #f0f0f0 !important;
 }
 
 .cm-s-maputnik.CodeMirror-focused div.CodeMirror-selected {
@@ -47,5 +54,11 @@
 }
 
 .cm-s-maputnik .CodeMirror-matchingbracket {
-  text-decoration: underline; color: white !important;
+  background: hsla(223, 12%, 35%, 1);
+  color: $color-white !important;
+}
+
+.cm-s-maputnik .CodeMirror-nonmatchingbracket {
+  background-color: #bb0000;
+  color: white !important;
 }

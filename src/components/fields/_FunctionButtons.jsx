@@ -1,10 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import DocLabel from './DocLabel'
 import Button from '../Button'
-import FunctionIcon from 'react-icons/lib/md/functions'
-import MdInsertChart from 'react-icons/lib/md/insert-chart'
+import {MdFunctions, MdInsertChart} from 'react-icons/md'
 
 
 export default class FunctionButtons extends React.Component {
@@ -20,24 +18,18 @@ export default class FunctionButtons extends React.Component {
       makeZoomButton = <Button
         className="maputnik-make-zoom-function"
         onClick={this.props.onZoomClick}
+        title={"Turn property into a zoom function to enable a map feature to change with map's zoom level."}
       >
-        <DocLabel
-          label={<FunctionIcon />}
-          cursorTargetStyle={{ cursor: 'pointer' }}
-          doc={"Turn property into a zoom function to enable a map feature to change with map's zoom level."}
-        />
+        <MdFunctions />
       </Button>
 
-      if (this.props.fieldSpec['property-function'] && ['piecewise-constant', 'interpolated'].indexOf(this.props.fieldSpec['function']) !== -1) {
+      if (this.props.fieldSpec['property-type'] === 'data-driven') {
         makeDataButton = <Button
           className="maputnik-make-data-function"
           onClick={this.props.onDataClick}
+          title={"Turn property into a data function to enable a map feature to change according to data properties and the map's zoom level."}
         >
-          <DocLabel
-            label={<MdInsertChart />}
-            cursorTargetStyle={{ cursor: 'pointer' }}
-            doc={"Turn property into a data function to enable a map feature to change according to data properties and the map's zoom level."}
-          />
+          <MdInsertChart />
         </Button>
       }
       return <div>{makeDataButton}{makeZoomButton}</div>

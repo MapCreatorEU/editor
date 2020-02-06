@@ -1,7 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import CloseIcon from 'react-icons/lib/md/close'
+import {MdClose} from 'react-icons/md'
 import AriaModal from 'react-aria-modal'
+import classnames from 'classnames';
 
 
 class Modal extends React.Component {
@@ -13,10 +14,22 @@ class Modal extends React.Component {
     children: PropTypes.node,
     underlayClickExits: PropTypes.bool,
     underlayProps: PropTypes.object,
+    className: PropTypes.string,
   }
 
   static defaultProps = {
     underlayClickExits: true
+  }
+
+  // See <https://github.com/maputnik/editor/issues/416>
+  onClose = () => {
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+
+    setImmediate(() => {
+      this.props.onOpenToggle(false);
+    });
   }
 
   getApplicationNode() {
@@ -32,19 +45,19 @@ class Modal extends React.Component {
         getApplicationNode={this.getApplicationNode}
         data-wd-key={this.props["data-wd-key"]}
         verticallyCenter={true}
-        onExit={() => this.props.onOpenToggle(false)}
+        onExit={this.onClose}
       >
-        <div className="maputnik-modal"
+        <div className={classnames("maputnik-modal", this.props.className)}
           data-wd-key={this.props["data-wd-key"]}
         >
           <header className="maputnik-modal-header">
             <h1 className="maputnik-modal-header-title">{this.props.title}</h1>
             <span className="maputnik-modal-header-space"></span>
             <button className="maputnik-modal-header-toggle"
-              onClick={() => this.props.onOpenToggle(false)}
+              onClick={this.onClose}
               data-wd-key={this.props["data-wd-key"]+".close-modal"}
             >
-              <CloseIcon />
+              <MdClose />
             </button>
           </header>
           <div className="maputnik-modal-scroller">

@@ -1,9 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import DocLabel from './DocLabel'
 import Button from '../Button'
-import DeleteIcon from 'react-icons/lib/md/delete'
+import {MdDelete} from 'react-icons/md'
 
 
 export default class DeleteStopButton extends React.Component {
@@ -15,11 +14,9 @@ export default class DeleteStopButton extends React.Component {
     return <Button
       className="maputnik-delete-stop"
       onClick={this.props.onClick}
+      title={"Remove zoom level stop."}
     >
-      <DocLabel
-        label={<DeleteIcon />}
-        doc={"Remove zoom level stop."}
-      />
+      <MdDelete />
     </Button>
   }
 }

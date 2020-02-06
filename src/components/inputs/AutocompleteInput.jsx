@@ -14,16 +14,13 @@ class AutocompleteInput extends React.Component {
     keepMenuWithinWindowBounds: PropTypes.bool
   }
 
+  state = {
+    maxHeight: MAX_HEIGHT
+  }
+
   static defaultProps = {
     onChange: () => {},
     options: [],
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      maxHeight: MAX_HEIGHT
-    };
   }
 
   calcMaxHeight() {
@@ -38,12 +35,17 @@ class AutocompleteInput extends React.Component {
       }
     }
   }
+
   componentDidMount() {
     this.calcMaxHeight();
   }
 
   componentDidUpdate() {
     this.calcMaxHeight();
+  }
+
+  onChange (v) {
+    this.props.onChange(v === "" ? undefined : v);
   }
 
   render() {
@@ -56,7 +58,8 @@ class AutocompleteInput extends React.Component {
         menuStyle={{
           position: "fixed",
           overflow: "auto",
-          maxHeight: this.state.maxHeight
+          maxHeight: this.state.maxHeight,
+          zIndex: '998'
         }}
         wrapperProps={{
           className: "maputnik-autocomplete",
@@ -69,10 +72,12 @@ class AutocompleteInput extends React.Component {
         value={this.props.value}
         items={this.props.options}
         getItemValue={(item) => item[0]}
-        onSelect={v => this.props.onChange(v)}
-        onChange={(e, v) => this.props.onChange(v)}
-        shouldItemRender={(item, value) => {
-          return item[0].toLowerCase().indexOf(value.toLowerCase()) > -1
+        onSelect={v => this.onChange(v)}
+        onChange={(e, v) => this.onChange(v)}
+        shouldItemRender={(item, value="") => {
+          if (typeof(value) === "string") {
+            return item[0].toLowerCase().indexOf(value.toLowerCase()) > -1
+          }
         }}
         renderItem={(item, isHighlighted) => (
           <div

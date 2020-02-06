@@ -1,14 +1,44 @@
 [
 	{
-		"id": "maps4news",
-		"title": "Maps4News",
-		"url": "https://editor.bleeding.maps4news.com/maps4news.json",
-		"thumbnail": "https://editor.bleeding.maps4news.com/maps4news.png"
+		"id": "mapcreator",
+		"title": "Mapcreator",
+		"url": "https://vapi.bleeding.maps4news.com/styles/Mapcreator.json",
+		"thumbnail": ""
 	},
-  {
-    "id": "empty-style",
-    "title": "Empty Style",
-    "url": "https://cdn.jsdelivr.net/gh/maputnik/editor@v1.5.0/src/config/empty-style.json",
-    "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAQAAAAHDYbIAAAAEUlEQVR42mP8/58BDhiJ4wAA974H/U5Xe1oAAAAASUVORK5CYII="
-  }
+	{
+		"id": "Manhattan by Maps4News",
+		"title": "Manhattan",
+		"url": "https://vapi.bleeding.maps4news.com/styles/Manhattan by Maps4News.json",
+		"thumbnail": ""
+	},
+	{
+		"id": "FTI",
+		"title": "FTI (osm)",
+		"url": "https://vapi.bleeding.maps4news.com/styles/FTI.json",
+		"thumbnail": ""
+	},
+	{
+		"id": "News UK",
+		"title": "News UK",
+		"url": "https://vapi.bleeding.maps4news.com/styles/News UK.json",
+		"thumbnail": ""
+	},
+	{
+		"id": "DR Grey",
+		"title": "DR Grey",
+		"url": "https://vapi.bleeding.maps4news.com/styles/DR Grey.json",
+		"thumbnail": ""
+	},
+	{
+		"id": "Quotidiano",
+		"title": "Quotidiano",
+		"url": "https://vapi.bleeding.maps4news.com/styles/Quotidiano.json",
+		"thumbnail": ""
+	},
+	{
+		"id": "empty-style",
+		"title": "Empty Style",
+		"url": "https://cdn.jsdelivr.net/gh/maputnik/editor@v1.5.0/src/config/empty-style.json",
+		"thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAQAAAAHDYbIAAAAEUlEQVR42mP8/58BDhiJ4wAA974H/U5Xe1oAAAAASUVORK5CYII="
+	}
 ]

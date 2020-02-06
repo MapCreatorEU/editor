@@ -8,18 +8,29 @@ class StringInput extends React.Component {
     style: PropTypes.object,
     default: PropTypes.string,
     onChange: PropTypes.func,
+    onInput: PropTypes.func,
     multi: PropTypes.bool,
+    required: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    onInput: () => {},
   }
 
   constructor(props) {
     super(props)
     this.state = {
+      editing: false,
       value: props.value || ''
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({ value: nextProps.value || '' })
+  static getDerivedStateFromProps(props, state) {
+    if (!state.editing) {
+      return {
+        value: props.value
+      };
+    }
   }
 
   render() {
@@ -45,16 +56,23 @@ class StringInput extends React.Component {
       spellCheck: !(tag === "input"),
       className: classes.join(" "),
       style: this.props.style,
-      value: this.state.value,
+      value: this.state.value === undefined ? "" : this.state.value,
       placeholder: this.props.default,
       onChange: e => {
         this.setState({
+          editing: true,
           value: e.target.value
-        })
+        }, () => {
+          this.props.onInput(this.state.value);
+        });
       },
       onBlur: () => {
-        if(this.state.value!==this.props.value) this.props.onChange(this.state.value)
-      }
+        if(this.state.value!==this.props.value) {
+          this.setState({editing: false});
+          this.props.onChange(this.state.value);
+        }
+      },
+      required: this.props.required,
     });
   }
 }

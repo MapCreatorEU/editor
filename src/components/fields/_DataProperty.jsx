@@ -8,10 +8,31 @@ import StringInput from '../inputs/StringInput'
 import SelectInput from '../inputs/SelectInput'
 import DocLabel from './DocLabel'
 import InputBlock from '../inputs/InputBlock'
+import docUid from '../../libs/document-uid'
+import sortNumerically from '../../libs/sort-numerically'
 
 import labelFromFieldName from './_labelFromFieldName'
 import DeleteStopButton from './_DeleteStopButton'
 
+
+
+function setStopRefs(props, state) {
+  // This is initialsed below only if required to improved performance.
+  let newRefs;
+
+  if(props.value && props.value.stops) {
+    props.value.stops.forEach((val, idx) => {
+      if(!state.refs.hasOwnProperty(idx)) {
+        if(!newRefs) {
+          newRefs = {...state};
+        }
+        newRefs[idx] = docUid("stop-");
+      }
+    })
+  }
+
+  return newRefs;
+}
 
 export default class DataProperty extends React.Component {
   static propTypes = {
@@ -29,8 +50,32 @@ export default class DataProperty extends React.Component {
     ]),
   }
 
+  state = {
+    refs: {}
+  }
+
+  componentDidMount() {
+    const newRefs = setStopRefs(this.props, this.state);
+
+    if(newRefs) {
+      this.setState({
+        refs: newRefs
+      })
+    }
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const newRefs = setStopRefs(props, state);
+    if(newRefs) {
+      return {
+        refs: newRefs
+      };
+    }
+    return null;
+  }
+
   getFieldFunctionType(fieldSpec) {
-    if (fieldSpec.function === "interpolated") {
+    if (fieldSpec.expression.interpolated) {
       return "exponential"
     }
     if (fieldSpec.type === "number") {
@@ -39,8 +84,8 @@ export default class DataProperty extends React.Component {
     return "categorical"
   }
 
-  getDataFunctionTypes(functionType) {
-    if (functionType === "interpolated") {
+  getDataFunctionTypes(fieldSpec) {
+    if (fieldSpec.expression.interpolated) {
       return ["categorical", "interval", "exponential"]
     }
     else {
@@ -48,14 +93,42 @@ export default class DataProperty extends React.Component {
     }
   }
 
+  // Order the stops altering the refs to reflect their new position.
+  orderStopsByZoom(stops) {
+    const mappedWithRef = stops
+      .map((stop, idx) => {
+        return {
+          ref: this.state.refs[idx],
+          data: stop
+        }
+      })
+      // Sort by zoom
+      .sort((a, b) => sortNumerically(a.data[0].zoom, b.data[0].zoom));
+
+    // Fetch the new position of the stops
+    const newRefs = {};
+    mappedWithRef
+      .forEach((stop, idx) =>{
+        newRefs[idx] = stop.ref;
+      })
+
+    this.setState({
+      refs: newRefs
+    });
+
+    return mappedWithRef.map((item) => item.data);
+  }
 
   changeStop(changeIdx, stopData, value) {
     const stops = this.props.value.stops.slice(0)
     const changedStop = stopData.zoom === undefined ? stopData.value : stopData
     stops[changeIdx] = [changedStop, value]
+
+    const orderedStops = this.orderStopsByZoom(stops);
+
     const changedValue = {
       ...this.props.value,
-      stops: stops,
+      stops: orderedStops,
     }
     this.props.onChange(this.props.fieldName, changedValue)
   }
@@ -77,6 +150,7 @@ export default class DataProperty extends React.Component {
 
     const dataFields = this.props.value.stops.map((stop, idx) => {
       const zoomLevel = typeof stop[0] === 'object' ? stop[0].zoom : undefined;
+      const key  = this.state.refs[idx];
       const dataLevel = typeof stop[0] === 'object' ? stop[0].value : stop[0];
       const value = stop[1]
       const deleteStopBtn = <DeleteStopButton onClick={this.props.onDeleteStop.bind(this, idx)} />
@@ -107,7 +181,7 @@ export default class DataProperty extends React.Component {
         </div>
       }
 
-      return <InputBlock key={idx} action={deleteStopBtn} label="">
+      return <InputBlock key={key} action={deleteStopBtn} label="">
         {zoomInput}
         <div className="maputnik-data-spec-property-stop-data">
           {dataInput}
@@ -126,17 +200,17 @@ export default class DataProperty extends React.Component {
     return <div className="maputnik-data-spec-block">
     <div className="maputnik-data-spec-property">
       <InputBlock
-        doc={this.props.fieldSpec.doc}
+        fieldSpec={this.props.fieldSpec}
         label={labelFromFieldName(this.props.fieldName)}
       >
         <div className="maputnik-data-spec-property-group">
           <DocLabel
             label="Property"
-            doc={"Input a data property to base styles off of."}
           />
           <div className="maputnik-data-spec-property-input">
             <StringInput
               value={this.props.value.property}
+              title={"Input a data property to base styles off of."}
               onChange={propVal => this.changeDataProperty("property", propVal)}
             />
           </div>
@@ -144,20 +218,19 @@ export default class DataProperty extends React.Component {
         <div className="maputnik-data-spec-property-group">
           <DocLabel
             label="Type"
-            doc={"Select a type of data scale (default is 'categorical')."}
           />
           <div className="maputnik-data-spec-property-input">
             <SelectInput
               value={this.props.value.type}
               onChange={propVal => this.changeDataProperty("type", propVal)}
-              options={this.getDataFunctionTypes(this.props.fieldSpec.function)}
+              title={"Select a type of data scale (default is 'categorical')."}
+              options={this.getDataFunctionTypes(this.props.fieldSpec)}
             />
           </div>
         </div>
         <div className="maputnik-data-spec-property-group">
           <DocLabel
             label="Default"
-            doc={"Input a default value for data if not covered by the scales."}
           />
           <div className="maputnik-data-spec-property-input">
             <SpecField
@@ -168,15 +241,15 @@ export default class DataProperty extends React.Component {
             />
           </div>
         </div>
+        {dataFields}
+        <Button
+          className="maputnik-add-stop"
+          onClick={this.props.onAddStop.bind(this)}
+        >
+          Add stop
+        </Button>
       </InputBlock>
     </div>
-      {dataFields}
-      <Button
-        className="maputnik-add-stop"
-        onClick={this.props.onAddStop.bind(this)}
-      >
-        Add stop
-      </Button>
     </div>
   }
 }
